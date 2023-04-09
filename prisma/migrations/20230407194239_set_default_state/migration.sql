@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Delivery" ALTER COLUMN "state" SET DEFAULT 'SCHEDULED';

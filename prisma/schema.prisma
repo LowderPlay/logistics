@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SECURITY
+  STOREKEEPER
+}
+
+model User {
+  id           Int           @id @unique @default(autoincrement())
+  email        String        @unique
+  password     String
+  role         Role
+  accessTokens AccessToken[]
+}
+
+model AccessToken {
+  id     Int    @id @unique @default(autoincrement())
+  token  String @unique
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+enum DeliveryState {
+  SCHEDULED // Delivery is planned, truck hasn't arrived yet
+  ARRIVED // Truck has got the paper, waiting at the outside parking lot
+  CHECKPOINT // Truck has been called for a checkpoint
+  WAITING // Truck has finished security check, waiting at the internal parking lot
+  LOADING // Truck is getting goods loaded onto it
+  COMPLETED // Loading is completed, truck has left the facility
+}
+
+model Delivery {
+  id          String        @id @unique
+  state       DeliveryState @default(SCHEDULED)
+  truck       String
+  driverName  String
+  recipient   String
+  updateTime  DateTime?
+  weight      Float
+  weightUnit  WeightUnit    @default(TONNE)
+  stockType   String
+  storage     Storage?
+  lowPriority Boolean       @default(false)
+}
+
+enum Storage {
+  SOUTH
+  NORTH
+}
+
+enum WeightUnit {
+  TONNE
+  KILOGRAM
+}
